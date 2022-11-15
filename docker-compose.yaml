@@ -1,0 +1,60 @@
+#Docker-Compose Build and Run basics
+
+# Step 1-First you need to build
+# docker-compose build
+
+# Step 2- Deploy / Build and Deploy Images on containers
+# docker-compose -f docker-compose.yml up -d
+
+## DOCKER MANAGEMENT COMMANDS ##
+# Stop containers
+# docker-compose -f docker-compose.yml down
+
+# Log of running modules
+# docker-compose logs
+
+# Single container log
+# docker-compose logs | grep apache-engine
+
+# Build and run a single container
+# docker-compose up -d --no-deps --build node-base
+
+
+# DOCKER MANAGEMENT
+#List all containers on this pc (even the ones that are not running) 
+#docker ps --all
+
+#Kill all running containers on this pc
+#docker kill $(docker ps -q)
+
+#Delete all stopped containers on this pc
+#docker rm $(docker ps -a -q)
+
+#Delete all images on this pc
+#docker rmi $(docker images -q)
+
+#FORCE delete images
+#docker rmi -f $(docker images -q)
+
+version: "3.7"
+services:
+    mongo-test-db:
+        container_name: mongo-test-db
+        image: mongo:latest
+        ports:
+            - '27069:27017' #--port 27069 to access db
+        volumes:
+            - ~/dataDB/mongo-test-db:/data/db
+
+    ######Mongo express module###### 
+    mongo-express-test:
+        container_name: mongo-express-test
+        image: mongo-express
+        restart: always
+        depends_on:
+            - mongo-test-db
+        environment:
+            - ME_CONFIG_MONGODB_SERVER=mongo-test-db
+            - ME_CONFIG_MONGODB_PORT="27069"
+        ports:
+            - '89:8081'
