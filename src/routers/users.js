@@ -5,6 +5,9 @@ const connectionsController = require('../controllers/connections.controller')
 
 const router = new express.Router()
 
+//Users should only be able to make transactions or add connections only after login 
+
+
 //Create a new user
 router.post('/users', usersController.createUser )
 

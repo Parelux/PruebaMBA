@@ -31,6 +31,9 @@ const userSchema = new mongoose.Schema({
         minlength: 14,
         trim: true,
     },
+    accountId: {
+        type: String, ref: 'Account',
+    },
     isAdmin: {
         type: Boolean,
         default: false
@@ -93,9 +96,36 @@ userSchema.methods.generateNewAccount = async function (userBalance) {
         balance: userBalance,
         userId: user._id.toString()
     })
-    await account.save()
 
+    try {
+        await account.save()
+
+        user.accountId = account.accountId
+        await user.save()
+
+        console.log('User account created and linked: ', account)
+    } catch (e) {
+        throw new Error('Error saving the account')
+    }
+    
     return account
+}
+
+/**
+ * Helper function to generate a new secure password of 14 digits
+ * Password shall contains number, letters and special characters
+ * https://www.npmjs.com/package/generate-password
+ * @returns {password}
+ */
+ userSchema.statics.generateSecurePassword = async () => {
+    const securePassword = generator.generate({
+        length: 14,
+        numbers: true,
+        symbols: true,
+        strict: true
+    });
+
+    return securePassword
 }
 
 /**
@@ -104,8 +134,8 @@ userSchema.methods.generateNewAccount = async function (userBalance) {
  * @param {*} password 
  * @returns {user}
  */
-userSchema.statics.findByCredentials = async (user_id, password) => {
-    const user = await User.findOne({ _id: user_id })
+userSchema.statics.findByAccountID= async (account_id, password) => {
+    const user = await User.findOne({ accountId: account_id })
     if (!user) {
         throw new Error('Unable to login, User not found.')
     }
@@ -116,23 +146,6 @@ userSchema.statics.findByCredentials = async (user_id, password) => {
     }
 
     return user
-}
-
-/**
- * Helper function to generate a new secure password of 14 digits
- * Password shall contains number, letters and special characters
- * https://www.npmjs.com/package/generate-password
- * @returns {password}
- */
-userSchema.statics.generateSecurePassword = () => {
-    const securePassword = generator.generate({
-        length: 14,
-        numbers: true,
-        symbols: true,
-        strict: true
-    });
-
-    return securePassword
 }
 
 const User = mongoose.model('User', userSchema);

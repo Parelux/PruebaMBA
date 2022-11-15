@@ -38,13 +38,14 @@
 
 version: "3.7"
 services:
+    ######Mongo database module###### 
     mongo-test-db:
-        container_name: mongo-test-db
+        container_name: mongo-db
         image: mongo:latest
         ports:
             - '27069:27017' #--port 27069 to access db
         volumes:
-            - ~/dataDB/mongo-test-db:/data/db
+            - /home/pablo/Documentos/Trabajo/pruebaNode_mba/data/:/data/db
 
     ######Mongo express module###### 
     mongo-express-test:
@@ -54,7 +55,7 @@ services:
         depends_on:
             - mongo-test-db
         environment:
-            - ME_CONFIG_MONGODB_SERVER=mongo-test-db
+            - ME_CONFIG_MONGODB_SERVER=mongo-db
             - ME_CONFIG_MONGODB_PORT="27069"
         ports:
             - '89:8081'

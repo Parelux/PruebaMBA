@@ -8,16 +8,8 @@ const connectToDatabase = async () => {
 }
 
 const disconnectDatabase = async () => {
-    await mongoose.disconnect();
+    return await mongoose.disconnect();
 }
-
-// mongoose.connect(process.env.MONGODB_URL, {
-//     useNewUrlParser: true,
-// }).then(() => {
-//     console.log("Success connecting to mongoDB database!")
-// }).catch(error => {
-//     console.error("Error connecting to mongoDB database: ", error)
-// })
 
 module.exports = {
     connectToDatabase,
