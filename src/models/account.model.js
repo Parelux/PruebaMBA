@@ -22,17 +22,30 @@ const accountSchema = new mongoose.Schema({
     autoIndex: true
 });
 
-// /**
-//  * PRE save, Generate an unique ID for the account
-//  */
-// accountSchema.pre('save', async function (next) {
-//     const account = this
+accountSchema.methods.getAmountFromAccount = async function (amount) {
+    const account = this
+    try {
+        account.balance = account.balance - amount
+        if (account.balance < 0) {
+            throw new Error('Insufficient balance in account for the operation')
+        }
+        await account.save()
+        return
+    } catch (e) {
+        throw new Error('Error while extracting ' + amount + ' from account: ', account)
+    }
+}
 
-//     const uid = new ShortUniqueId({ length: 10 });
-//     account.accountId = uid();
-
-//     next()
-// })
+accountSchema.methods.transferMoneyToAccount = async function (amount) {
+    const account = this
+    try {
+        account.balance = account.balance + amount
+        await account.save()
+        return
+    } catch (e) {
+        throw new Error('Error while adding money to the target account: ', account, amount)
+    }
+}
 
 const Account = mongoose.model('Account', accountSchema);
 module.exports = Account;

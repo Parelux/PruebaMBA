@@ -1,5 +1,4 @@
 const User = require("../models/user.model");
-const Account = require("../models/account.model")
 
 /**
  * Create a new user with token and a new account

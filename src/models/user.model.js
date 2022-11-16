@@ -5,7 +5,6 @@ const Account = require('./account.model');
 const ShortUniqueId = require('short-unique-id');
 const generator = require('generate-password');
 
-
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
@@ -104,7 +103,7 @@ userSchema.methods.generateNewAccount = async function (userBalance) {
 
         console.log('User account created and linked: ', account)
     } catch (e) {
-        throw new Error('Error saving the account')
+        throw new Error('Error saving the account', e)
     }
 
     return account

@@ -4,13 +4,10 @@ const exportTransactionToCSV = require('../middleware/csvExporter')
 const transactionController = require('../controllers/transactions.controller')
 const router = new express.Router()
 
-//TODO Users should only be able to make transactions or add connections only after login 
-//TODO Users can send and receive money to accounts which are there connection. Each transaction should be in the database.
-//TODO Each transaction should also be saved in a .csv file in the file system with following format.
-//TODO Bank makes 1% on each transaction below 1,000 and 0.5% every transasction above 1,000.
 router.post('/transactions/from/:user_account_id/to/:destinatary_account_id', authMW, transactionController.executeTransaction, exportTransactionToCSV)
 
-//TODO Users should be able to see their past transactions.
+router.delete('/transactions/:transaction_id', authMW, transactionController.undoTransaction)
+
 router.get('/transactions/historical', authMW, transactionController.userTransactionHistory)
 
 /**
@@ -19,6 +16,7 @@ router.get('/transactions/historical', authMW, transactionController.userTransac
  * We would like you to use mongo's aggregation framework to calculate money made 
  * by the bank.
  */
+
 //  router.get('/admin/balance', authMW, isAdmin ,transactionController.transactionsBalanceForAdmin)
 router.get('/admin/balance', authMW ,transactionController.transactionsBalanceForAdmin)
 

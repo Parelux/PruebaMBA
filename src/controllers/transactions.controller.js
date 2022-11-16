@@ -63,25 +63,21 @@ const executeTransaction = async (req, res, next) => {
         })
         await transaction.save()
         console.log("***Executing new transaction***: ", transaction)
-        await transaction.getAmountFromAccount(userAccount, totalTransfer)
+        await userAccount.getAmountFromAccount(totalTransfer)
         console.log("***Extracted money from origin account***: ", userAccount, totalTransfer)
-        await transaction.transferMoneyToAccount(targetAccount, transaction.amount)
+        await targetAccount.transferMoneyToAccount(transaction.amount)
         console.log("***Transfered money to destinatary account***: ", targetAccount, transaction.amount)
 
         req.transaction = transaction
         res.status(200).send(transaction)
+
+        //Print a CSV for the transaction
         next()
 
     } catch (e) {
         console.error("Error performing the transaction: ", e)
         res.status(500).send({ error: "Error executing the transaction" })
     }
-
-
-}
-
-const undoTransaction = (req, res, next) => {
-    res.status(404).send('Not implemented')
 }
 
 const userTransactionHistory = async (req, res, next) => {
@@ -109,6 +105,8 @@ const transactionsBalanceForAdmin = async (req, res, next) => {
         const pipelineLT1000 = [
             //Stage 1 Filter documents
             { $match: { amount: { $lt: 1000 } } },
+            
+            //Stage 2: Operate with percentages
             {
                 $group: {
                     _id: null,
@@ -121,17 +119,13 @@ const transactionsBalanceForAdmin = async (req, res, next) => {
         const resultLT1000 = await Transaction
             .aggregate(pipelineLT1000, { allowDiskUse: true })
 
-        console.log("LT1000", resultLT1000)
-
-
         //Calculate benefits from transations greater than 1000
         const pipelineGT1000 = [
             //Stage 1 Filter documents
             { $match: { amount: { $gt: 1000 } } },
 
             //Stage 2: Operate with percentages
-            {
-                $group: {
+            { $group: {
                     _id: null,
                     totalBenefit: {
                         $sum: { $multiply: ['$amount', 0.005] }
@@ -141,7 +135,6 @@ const transactionsBalanceForAdmin = async (req, res, next) => {
         ]
         const resultGT1000 = await Transaction
             .aggregate(pipelineGT1000, { allowDiskUse: true })
-        console.log("GT1000", resultGT1000)
 
         return res.status(200).send({
             totalBenefits: resultLT1000[0].totalBenefit + resultGT1000[0].totalBenefit
@@ -149,14 +142,16 @@ const transactionsBalanceForAdmin = async (req, res, next) => {
     } catch (e) {
         console.error("Error performing the querys", e)
     }
+}
 
-
-    // res.status(404).send('Not implemented')
+const undoTransaction = (req, res, next) => {
+    res.status(404).send('Not implemented')
 }
 
 
 module.exports = {
     executeTransaction,
     userTransactionHistory,
-    transactionsBalanceForAdmin
+    transactionsBalanceForAdmin,
+    undoTransaction
 }

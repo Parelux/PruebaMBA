@@ -13,19 +13,6 @@ const requestConnection = async (req, res, next) => {
     }
 
     try {
-        //First search if a connection is pending to accept 
-        //from the other account, this is the contrary basically
-        // const pendingConnection = await Connection.find({
-        //     accountOneId: accountTwoId,
-        //     accountTwoId: accountOneId
-        // })
-
-        // if (pendingConnection) {
-        //     pendingConnection.userTwoId = userOneID
-        //     pendingConnection.accountTwoConfirm = true
-        //     await pendingConnection.save()
-        //     return res.status(200).send({ info: 'There was a pending invitation from that account, it has been accepted!' })
-        // }
 
         const connectionDuplicated = await Connection.findOne({
             $or: [
@@ -97,10 +84,8 @@ const acceptConnection = async (req, res, next) => {
 
         pendingConnection.userTwoId = req.user._id
         pendingConnection.accountTwoConfirm = true
-
-        console.log(pendingConnection)
+        
         await pendingConnection.save()
-
         return res.status(200).send({ info: 'Invitation accepted' })
     } catch (e) {
         console.error("Error accepting invitation: ", e)
@@ -111,7 +96,6 @@ const acceptConnection = async (req, res, next) => {
 }
 
 const getAllAvailableConnections = async (req, res, next) => {
-
     const user = req.user
 
     try {
@@ -131,11 +115,15 @@ const getAllAvailableConnections = async (req, res, next) => {
                 connection.userOneId = undefined
                 connection.userTwoId['tokens'] = undefined
                 connection.userTwoId['password'] = undefined
+                connection.userTwoId['isAdmin'] = undefined
+                connection.userTwoId['createdAt'] = undefined
 
             } else {
                 connection.userTwoId = undefined
                 connection.userOneId['tokens'] = undefined
                 connection.userOneId['password'] = undefined
+                connection.userOneId['isAdmin'] = undefined
+                connection.userOneId['createdAt'] = undefined
             }
         });
 
@@ -146,10 +134,33 @@ const getAllAvailableConnections = async (req, res, next) => {
     }
 }
 
+const removeConnectionOrInvitation = async (req, res, next) => {
+    const user = req.user
+    const connection_id = req.params.connection_id
+
+    //Find a valid connection with the responsible user on it
+    const connectionRemoved = await Connection.findOneAndDelete({
+        _id: connection_id,
+        $or: [
+            { accountOneId: user.account.accountId },
+            { accountTwoId: user.account.accountId }
+        ]
+    })
+
+    if(!connectionRemoved){
+        return res.status(404).send({
+            info: 'The connection is already deleted'
+        })
+    }
+
+    return res.status(200).send({removed: connectionRemoved})
+}
+
 
 module.exports = {
     getAllAvailableConnections,
     getPendingConnections,
     requestConnection,
-    acceptConnection
+    acceptConnection,
+    removeConnectionOrInvitation
 }

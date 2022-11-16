@@ -26,5 +26,7 @@ router.get('/users/connections/pending', authMW, connectionsController.getPendin
 //Accept an invitation with ID :connection_id
 router.put('/users/connections/accept/:connection_id', authMW, connectionsController.acceptConnection)
 
+//Remove a connection with ID :connection_id
+router.delete('/users/connections/:connection_id', authMW, connectionsController.removeConnectionOrInvitation)
 
 module.exports = router
