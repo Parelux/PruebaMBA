@@ -1,21 +1,23 @@
-const {mongoose} = require('mongoose');
+const {mongoose, Schema} = require('mongoose');
 
 const connectionnSchema = new mongoose.Schema({
     userOneId: {
+        type: Schema.Types.ObjectId, ref:'User'
+    },
+    accountOneId: {
         type: String,
         required: true,
         trim: true
     },
-    userOneConfirm: {
-        type: Boolean,
-        default: true,
+    userTwoId: {
+        type: Schema.Types.ObjectId, ref:'User'
     },
-    UserTwoId: {
+    accountTwoId: {
         type: String,
         required: true,
         trim: true
     },
-    userTwoConfirm: {
+    accountTwoConfirm: {
         type: Boolean,
         default: false,
     },

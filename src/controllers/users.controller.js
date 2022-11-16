@@ -13,11 +13,19 @@ const createUser = async (req, res) => {
 
         const token = await user.generateAuthToken()
         const account = await user.generateNewAccount(balance);
-        
+
         await user.save()
-        res.status(201).send({ user, password, account, token })
+
+        //Put the real password for the user to use it
+        user.password = password
+
+        //Join the account and hide some fields to avoid confussions
+        user.isAdmin = undefined
+        user.tokens = undefined
+
+        res.status(201).send({ user: user, access_token: token, user_account: account })
     } catch (e) {
-        res.status(400).send({error: 'Error creating user: '+e})
+        res.status(400).send({ error: 'Error creating user: ' + e })
     }
 }
 
@@ -36,7 +44,13 @@ const login = async (req, res) => {
         const user = await User.findByAccountID(account_id, password);
         const token = await user.generateAuthToken();
 
-        res.send({ user, token })
+        //Hide some fields to avoid confussions
+        user.account = undefined
+        user.isAdmin = undefined
+        user.password = undefined
+        user.tokens = undefined
+
+        res.send({ user: user, access_token: token })
 
     } catch (e) {
         console.error("Error login user: ", e)

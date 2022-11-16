@@ -22,6 +22,7 @@ const authMW = async (req, res, next) => {
         }
         
         const user = await User.findOne({ _id: decoded._id, 'tokens.token': token })
+        .populate('account')
         if (!user) {
             return res.status(400).send({ error: 'User not found' })
         }

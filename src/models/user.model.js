@@ -1,5 +1,4 @@
-const { mongoose } = require('mongoose')
-const validator = require('validator')
+const { mongoose, Schema } = require('mongoose')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs');
 const Account = require('./account.model');
@@ -31,8 +30,8 @@ const userSchema = new mongoose.Schema({
         minlength: 14,
         trim: true,
     },
-    accountId: {
-        type: String, ref: 'Account',
+    account: {
+        type: Schema.Types.ObjectId, ref: 'Account'
     },
     isAdmin: {
         type: Boolean,
@@ -53,7 +52,7 @@ const userSchema = new mongoose.Schema({
  * Middleware
  * Pre-Save, Ofuscate the password before introducing the document
  */
- userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function (next) {
     const user = this
 
     if (user.isModified('password')) {
@@ -94,20 +93,20 @@ userSchema.methods.generateNewAccount = async function (userBalance) {
     const account = new Account({
         accountId: uid(),
         balance: userBalance,
-        userId: user._id.toString()
+        user: user._id
     })
 
     try {
         await account.save()
 
-        user.accountId = account.accountId
+        user.account = account._id
         await user.save()
 
         console.log('User account created and linked: ', account)
     } catch (e) {
         throw new Error('Error saving the account')
     }
-    
+
     return account
 }
 
@@ -117,7 +116,7 @@ userSchema.methods.generateNewAccount = async function (userBalance) {
  * https://www.npmjs.com/package/generate-password
  * @returns {password}
  */
- userSchema.statics.generateSecurePassword = async () => {
+userSchema.statics.generateSecurePassword = async () => {
     const securePassword = generator.generate({
         length: 14,
         numbers: true,
@@ -134,18 +133,20 @@ userSchema.methods.generateNewAccount = async function (userBalance) {
  * @param {*} password 
  * @returns {user}
  */
-userSchema.statics.findByAccountID= async (account_id, password) => {
-    const user = await User.findOne({ accountId: account_id })
-    if (!user) {
-        throw new Error('Unable to login, User not found.')
+userSchema.statics.findByAccountID = async (account_id, password) => {
+    
+    const account = await Account.findOne({ accountId: account_id })
+    .populate('user')
+    if (!account) {
+        throw new Error('Unable to login, account not found.')
     }
 
-    const isMatch = await bcrypt.compare(password, user.password)
+    const isMatch = await bcrypt.compare(password, account.user.password)
     if (!isMatch) {
         throw new Error('Unable to login, Password incorrect.')
     }
 
-    return user
+    return account.user
 }
 
 const User = mongoose.model('User', userSchema);

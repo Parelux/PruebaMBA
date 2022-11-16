@@ -1,14 +1,14 @@
 const { mongoose, Schema } = require('mongoose');
-const ShortUniqueId = require('short-unique-id');
 
 const accountSchema = new mongoose.Schema({
     accountId: {
         type: String,
         required: true,
         unique: true,
-        trim: true
+        trim: true,
+        index: true
     },
-    userId: {
+    user: {
         type: Schema.Types.ObjectId, ref: 'User',
         required: true
     },
