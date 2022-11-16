@@ -19,7 +19,8 @@ router.get('/transactions/historical', authMW, transactionController.userTransac
  * We would like you to use mongo's aggregation framework to calculate money made 
  * by the bank.
  */
- router.get('/admin/balance', authMW, isAdmin ,transactionController.transactionsBalanceForAdmin)
+//  router.get('/admin/balance', authMW, isAdmin ,transactionController.transactionsBalanceForAdmin)
+router.get('/admin/balance', authMW ,transactionController.transactionsBalanceForAdmin)
 
 
 module.exports = router
