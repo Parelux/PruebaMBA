@@ -22,9 +22,9 @@ const createUser = async (req, res) => {
         user.isAdmin = undefined
         user.tokens = undefined
 
-        res.status(201).send({ user: user, access_token: token, user_account: account })
+        return res.status(201).send({ user: user, access_token: token, user_account: account })
     } catch (e) {
-        res.status(400).send({ error: 'Error creating user: ' + e })
+        return res.status(400).send({ error: 'Error creating user: ' + e })
     }
 }
 
@@ -49,11 +49,11 @@ const login = async (req, res) => {
         user.password = undefined
         user.tokens = undefined
 
-        res.send({ user: user, access_token: token })
+        return res.send({ user: user, access_token: token })
 
     } catch (e) {
         console.error("Error login user: ", e)
-        res.status(401).send({ error: e })
+        return res.status(401).send({ error: e })
     }
 }
 

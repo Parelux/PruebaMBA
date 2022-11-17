@@ -32,10 +32,10 @@ const getOrCreateCSVFile = async () => {
  * @param {*} req 
  */
 const exportTransactionToCSV = async (req, res, next) => {
-    const sender = req.sender;
-    const receiver = req.receiver;
-    const amount = req.amount;
-    const ts = req.timestamp;
+    const sender = req.transaction.originAccountId;
+    const receiver = req.transaction.targetAccountId;
+    const amount = req.transaction.amount;
+    const ts = req.transaction.timestamp;
 
     const record = [sender, receiver, amount, ts]
 

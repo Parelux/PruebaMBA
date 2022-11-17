@@ -68,15 +68,18 @@ const executeTransaction = async (req, res, next) => {
         })
         await transaction.save()
 
-        console.log("***Executing new transaction***: ", transaction)
-        await userAccount.getAmountFromAccount(totalTransfer)
-        console.log("***Extracted money from origin account***: ", userAccount, totalTransfer)
-        
+        console.info("***Executing new transaction*** :", transaction)
+
+        //Get the intermediate account
         const intermediateAccount = await Account.find({
             accountId: process.env.INTERMEDIATE_ACCOUNTID
         })
+
+        await userAccount.getAmountFromAccount(totalTransfer)
+        console.info("*Extracted money from origin account*: ", userAccount, totalTransfer)
+        
         await intermediateAccount.transferMoneyToAccount(transaction.amount)
-        console.log("***Transfered money to intermediate account***: ", targetAccount, transaction.amount)
+        console.info("*Transfered money to intermediate account*", targetAccount, transaction.amount)
 
         res.status(200).send({
             info: "Your transaction is being proccesed, you can \
@@ -101,19 +104,27 @@ const undoTransaction = async (req, res, next) => {
     })
 
     if (!transactionToCancel) {
-        return res.status(404).send({ error: "Transaction not found" })
+        return res.status(404).send({ 
+            error: "Transaction not found" 
+        })
     }
 
     if (transactionToCancel.error) {
-        return res.status(500).send({ error: "Transaction error, contact an administrator." })
+        return res.status(500).send({ 
+            error: "Transaction error, contact an administrator." 
+        })
     }
 
     if (!transactionToCancel.pending) {
-        return res.status(400).send({ error: "Transaction already executed." })
+        return res.status(400).send({ 
+            error: "Transaction already executed." 
+        })
     }
 
     if (!transactionInTime(transactionToCancel)) {
-        return res.status(400).send({ error: "You can only cancel transactions in the next minute they are made" })
+        return res.status(400).send({ 
+            error: "You can only cancel transactions in the next minute they are made" 
+        })
     }
 
     //Cancel the transaction
@@ -121,11 +132,15 @@ const undoTransaction = async (req, res, next) => {
         transactionToCancel.cancelled = true;
         await transaction.save()
 
-        console.info("User manually cancelled transaction " + transactionToCancel._id.toString())
-        return res.status(200).send({ info: "Transaction cancelled, your money will be returned in the next minutes" })
+        console.info("User cancelled transaction " + transactionToCancel._id.toString())
+        return res.status(200).send({ 
+            info: "Transaction cancelled, your money will be returned in the next minutes" 
+        })
     } catch (e) {
-        console.error("Error cancelling the transaction " + transactionToCancel._id.toString() + " :", e)
-        return res.status(500).send({ error: `Something wrong happened cancelling the transaction ${transactionToCancel._id.toString()}` })
+        console.error(`Error cancelling the transaction ${transactionToCancel._id.toString()} `, e)
+        return res.status(500).send({ 
+            error: `Error cancelling the transaction ${transactionToCancel._id.toString()}` 
+        })
     }
 }
 
@@ -199,6 +214,9 @@ const transactionsBalanceForAdmin = async (req, res, next) => {
         })
     } catch (e) {
         console.error("Error performing the querys", e)
+        return res.status(500).send({
+            error: "Error performing the querys, contact an administrator"
+        })
     }
 }
 
