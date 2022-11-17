@@ -9,8 +9,9 @@ const executeTransaction = async (req, res, next) => {
     const amountToTransfer = req.body.amountToTransfer
     const targetAccountId = req.body.targetAccountId
 
-    //Bank taxes percentages should go to a env file
-    const bankComission = amountToTransfer > 1000 ? 0.005 : 0.01;
+    //Get the bank commision using env variables
+    const bankComission = amountToTransfer > 1000 ? 
+    process.env.BANK_GT1000_TAXES : process.env.BANK_LT1000_TAXES;
 
     const bankTaxes = amountToTransfer * bankComission;
     const totalTransfer = amountToTransfer + bankTaxes;
@@ -24,14 +25,17 @@ const executeTransaction = async (req, res, next) => {
     }
 
     try {
+        //Validate target account
         const targetAccount = await Account.findOne({
             accountId: targetAccountId
         })
-        if (!targetAccount)
+        if (!targetAccount){
             return res.status(400).send({
                 error: 'You can only send transfers to existing accounts'
             })
+        }
 
+        //Validate connection between accounts
         const connectionAvailable = await Connection.findOne({
             $and: [
                 {
@@ -49,34 +53,79 @@ const executeTransaction = async (req, res, next) => {
             ],
             accountTwoConfirm: true
         })
-
-        if (!connectionAvailable)
+        if (!connectionAvailable){
             return res.status(400).send({
                 error: 'You can only send transfers to connected accounts'
             })
+        }
 
-        //Execute the transaction
+        //Create the PENDING transaction to be processed later
         const transaction = new Transaction({
             originAccountId: userAccount.accountId,
             targetAccountId: targetAccountId,
             amount: amountToTransfer,
+            pending: true,  
         })
         await transaction.save()
+
         console.log("***Executing new transaction***: ", transaction)
         await userAccount.getAmountFromAccount(totalTransfer)
         console.log("***Extracted money from origin account***: ", userAccount, totalTransfer)
-        await targetAccount.transferMoneyToAccount(transaction.amount)
-        console.log("***Transfered money to destinatary account***: ", targetAccount, transaction.amount)
+        
+        const intermediateAccount = await Account.find({
+            accountId: process.env.INTERMEDIATE_ACCOUNTID
+        })
+        await intermediateAccount.transferMoneyToAccount(transaction.amount)
+        console.log("***Transfered money to intermediate account***: ", targetAccount, transaction.amount)
 
-        req.transaction = transaction
-        res.status(200).send(transaction)
+        res.status(200).send({
+            info: "Your transaction is being proccesed, you can \
+            still cancel it, if no more than one minute has elapsed"
+        })
 
         //Print a CSV for the transaction
+        req.transaction = transaction
         next()
 
     } catch (e) {
         console.error("Error performing the transaction: ", e)
         res.status(500).send({ error: "Error executing the transaction" })
+    }
+}
+
+const undoTransaction = async (req, res, next) => {
+    const transaction_id = req.params.transaction_id
+
+    const transactionToCancel = await Transaction.find({
+        _id: transaction_id
+    })
+
+    if (!transactionToCancel) {
+        return res.status(404).send({ error: "Transaction not found" })
+    }
+
+    if (transactionToCancel.error) {
+        return res.status(500).send({ error: "Transaction error, contact an administrator." })
+    }
+
+    if (!transactionToCancel.pending) {
+        return res.status(400).send({ error: "Transaction already executed." })
+    }
+
+    if (!transactionInTime(transactionToCancel)) {
+        return res.status(400).send({ error: "You can only cancel transactions in the next minute they are made" })
+    }
+
+    //Cancel the transaction
+    try {
+        transactionToCancel.cancelled = true;
+        await transaction.save()
+
+        console.info("User manually cancelled transaction " + transactionToCancel._id.toString())
+        return res.status(200).send({ info: "Transaction cancelled, your money will be returned in the next minutes" })
+    } catch (e) {
+        console.error("Error cancelling the transaction " + transactionToCancel._id.toString() + " :", e)
+        return res.status(500).send({ error: `Something wrong happened cancelling the transaction ${transactionToCancel._id.toString()}` })
     }
 }
 
@@ -103,15 +152,20 @@ const transactionsBalanceForAdmin = async (req, res, next) => {
     try {
         //Calculate benefits from transations lesser than 1000
         const pipelineLT1000 = [
+            
             //Stage 1 Filter documents
             { $match: { amount: { $lt: 1000 } } },
-            
+
             //Stage 2: Operate with percentages
-            {
-                $group: {
+            { $group: {
                     _id: null,
                     totalBenefit: {
-                        $sum: { $multiply: ['$amount', 0.01] }
+                        $sum: { 
+                            $multiply: [
+                                '$amount', 
+                                process.env.BANK_LT1000_TAXES
+                            ] 
+                        }
                     }
                 }
             }
@@ -119,16 +173,21 @@ const transactionsBalanceForAdmin = async (req, res, next) => {
         const resultLT1000 = await Transaction
             .aggregate(pipelineLT1000, { allowDiskUse: true })
 
-        //Calculate benefits from transations greater than 1000
+        //Calculate benefits from transations equal or greater than 1000
         const pipelineGT1000 = [
             //Stage 1 Filter documents
-            { $match: { amount: { $gt: 1000 } } },
+            { $match: { amount: { $gte: 1000 } } },
 
             //Stage 2: Operate with percentages
             { $group: {
                     _id: null,
                     totalBenefit: {
-                        $sum: { $multiply: ['$amount', 0.005] }
+                        $sum: { 
+                            $multiply: [
+                                '$amount', 
+                                process.env.BANK_GT1000_TAXES
+                            ] 
+                        }
                     }
                 }
             }
@@ -144,8 +203,14 @@ const transactionsBalanceForAdmin = async (req, res, next) => {
     }
 }
 
-const undoTransaction = (req, res, next) => {
-    res.status(404).send('Not implemented')
+const transactionInTime = (transaction) => {
+    const ONE_MINUTE = 60 * 1000;
+    let timeStampNotInTime = transaction.timeStamp + ONE_MINUTE;
+
+    if (timeStampNotInTime < Date.now()) {
+        return true
+    }
+    return false
 }
 
 

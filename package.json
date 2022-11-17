@@ -32,7 +32,8 @@
     "bcryptjs": "2.4.3",
     "csv-writer": "1.6.0",
     "generate-password": "1.7.0",
-    "morgan": "1.10.0"
+    "morgan": "1.10.0",
+    "cron": "2.1.0"
   },
   "devDependencies": {
     "env-cmd": "10.1.0",

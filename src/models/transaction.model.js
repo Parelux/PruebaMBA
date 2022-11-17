@@ -18,7 +18,23 @@ const transactionSchema = new mongoose.Schema({
     timeStamp: {
         type: Date,
         default: Date.now
+    },
+    pending: {
+        type: Boolean,
+        default: true
+    },
+    cancelled: {
+        type: Boolean,
+        default: false
+    },
+    error: {
+        type: Boolean,
+        default: false
+    },
+    errorDescription: {
+        type: String,
     }
+
 }, {
     timestamps: false,
     autoIndex: true
