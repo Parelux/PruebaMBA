@@ -18,7 +18,6 @@ const CronJob = require('cron').CronJob;
 
 //Account used to save cash in pending transactions while processing
 let intermediateAccount;
-
 const transferServiceFunction = async () => {
     try {
         console.info("TRANSFER-SERVICE: Checking for pending transactions....")
@@ -116,7 +115,7 @@ const transferService = new CronJob(
     'Europe/Madrid'
 );
 
-const startService = async () => {
+const startTransferService = async () => {
 
     //Ensure there will be always a temporary account
     intermediateAccount = await Account.findOneAndUpdate(
@@ -135,17 +134,11 @@ const startService = async () => {
     transferService.start();
 }
 
-const stopService = async () => {
+const stopTransferService = async () => {
     transferService.stop();
 }
 
-
-
-
-
-
-
 module.exports = {
-    startService,
-    stopService
+    startTransferService,
+    stopTransferService
 }

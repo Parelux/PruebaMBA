@@ -1,11 +1,9 @@
 const express = require('express')
 const path = require('path');
-const { connectToDatabase } = require('./db/mongoose')
 var morgan = require('morgan')
+const { connectToDatabase } = require('./db/mongoose')
 const usersRouter = require('./routers/users')
 const transactionsRouter = require('./routers/transactions');
-const Account = require('./models/account.model');
-
 const transferService = require('./services/transferService')
 
 const app = express()
@@ -28,7 +26,7 @@ connectToDatabase().then(async () => {
     console.log("Success connecting to mongoDB database!")
 
     //Run cron job to execute pending transactions (period T defined in envFile)
-    transferService.startService()
+    transferService.startTransferService()
 
 }).catch((e) => {
     console.error("Error connecting to mongoDB database: ", e)

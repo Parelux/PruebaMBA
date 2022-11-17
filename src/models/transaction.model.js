@@ -34,7 +34,6 @@ const transactionSchema = new mongoose.Schema({
     errorDescription: {
         type: String,
     }
-
 }, {
     timestamps: false,
     autoIndex: true
