@@ -5,9 +5,6 @@ const connectionsController = require('../controllers/connections.controller')
 
 const router = new express.Router()
 
-//Users should only be able to make transactions or add connections only after login 
-
-
 //Create a new user
 router.post('/users', usersController.createUser )
 
@@ -20,7 +17,7 @@ router.get('/users/connections', authMW, connectionsController.getAllAvailableCo
 //Send an invitation to another user using his ID
 router.post('/users/connections', authMW, connectionsController.requestConnection)
 
-//Get pending invitations for this users
+//Get pending invitations for this user
 router.get('/users/connections/pending', authMW, connectionsController.getPendingConnections)
 
 //Accept an invitation with ID :connection_id

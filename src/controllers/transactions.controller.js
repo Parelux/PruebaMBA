@@ -152,7 +152,6 @@ const transactionsBalanceForAdmin = async (req, res, next) => {
     try {
         //Calculate benefits from transations lesser than 1000
         const pipelineLT1000 = [
-            
             //Stage 1 Filter documents
             { $match: { amount: { $lt: 1000 } } },
 

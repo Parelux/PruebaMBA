@@ -49,7 +49,7 @@ const requestConnection = async (req, res, next) => {
 
     } catch (e) {
         console.error("Error creating a new connection: ", e)
-        res.status(500).send()
+        res.status(500).send({error: "Something wrong happened, contact an administrator"})
     }
 }
 
@@ -76,7 +76,8 @@ const acceptConnection = async (req, res, next) => {
 
     try {
         const pendingConnection = await Connection.findOne({
-            _id: connection_id
+            _id: connection_id,
+            userTwoId: user._id
         })
         if (!pendingConnection || pendingConnection.accountTwoConfirm) {
             return res.status(404).send({ error: 'No pending invitations were found' })
@@ -89,10 +90,8 @@ const acceptConnection = async (req, res, next) => {
         return res.status(200).send({ info: 'Invitation accepted' })
     } catch (e) {
         console.error("Error accepting invitation: ", e)
+        return res.status(500).send({error: "Error accepting invitation, contact an administrator"})
     }
-
-    console.log(user, connection_id)
-    return res.status(200).send({ info: "Connection accepted" })
 }
 
 const getAllAvailableConnections = async (req, res, next) => {
@@ -109,7 +108,7 @@ const getAllAvailableConnections = async (req, res, next) => {
         .populate('userOneId')
         .populate('userTwoId')
 
-        //Show only the other user's information and clear sensitive data
+        //Show only the other user's information without sensitive data.
         availableConnections.map(connection => {
             if (connection.userOneId._id === user._id) {
                 connection.userOneId = undefined
@@ -131,6 +130,10 @@ const getAllAvailableConnections = async (req, res, next) => {
 
     } catch (e) {
         console.error("Error retrieving connections: ", e)
+        return res.status(500).send({
+            error: "Error retrieving connections, try again \
+            or contact an adminstrator."
+        })
     }
 }
 
