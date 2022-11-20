@@ -35,17 +35,16 @@ const exportTransactionToCSV = async (req, res, next) => {
     const sender = req.transaction.originAccountId;
     const receiver = req.transaction.targetAccountId;
     const amount = req.transaction.amount;
-    const ts = req.transaction.timestamp;
-
+    const ts = req.transaction.timeStamp;
     const record = [sender, receiver, amount, ts]
-
-    const csvWriter = await getOrCreateCSVFile()
-    if(csvWriter === undefined) {
-        console.error("Error retrieving CSV file, transaction history not saved: ", record)
-        return 
-    }
+    console.table(record)
 
     try {
+        const csvWriter = await getOrCreateCSVFile()
+        if(csvWriter === undefined) {
+            console.error("Error retrieving CSV file, transaction history not saved: ", record)
+            return 
+        }
         await csvWriter.writeRecords(record);
         console.table('Transaction added to CSV: ', record);
     } catch (e) {

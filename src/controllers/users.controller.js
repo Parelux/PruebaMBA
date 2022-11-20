@@ -1,3 +1,4 @@
+const Account = require("../models/account.model");
 const User = require("../models/user.model");
 
 /**
@@ -6,7 +7,12 @@ const User = require("../models/user.model");
 const createUser = async (req, res) => {
     const user = new User(req.body)
     const balance = req.body.balance
+
+    if (!balance || balance <= 0) 
+        return res.status(400).send({ error: 'Bad data entry, balance has to be positive or zero' })
+
     try {
+        //This is becouse of the password obfuscation upon save.
         const password = await User.generateSecurePassword();
         user.password = password;
 
@@ -24,7 +30,7 @@ const createUser = async (req, res) => {
 
         return res.status(201).send({ user: user, access_token: token, user_account: account })
     } catch (e) {
-        return res.status(400).send({ error: 'Error creating user: ' + e })
+        return res.status(500).send({ error: 'Error creating user: ' + e })
     }
 }
 
@@ -33,23 +39,22 @@ const createUser = async (req, res) => {
  * It requires a valid account number and password
  */
 const login = async (req, res) => {
-    const account_id = req.body.accountId ? req.body.accountId : undefined;
+    const accountId = req.body.accountId ? req.body.accountId : undefined;
     const password = req.body.password ? req.body.password : undefined;
 
-    if (!account_id || !password) {
+    if (!accountId || !password) {
         return res.status(400).send({ error: "Bad user data entry." })
     }
     try {
-        const user = await User.findByAccountID(account_id, password);
-        const token = await user.generateAuthToken();
+        const account = await Account.findByAccountIdAndPass(accountId, password);
+        const token = await account.user.generateAuthToken();
 
         //Hide some fields to avoid confussions
-        user.account = undefined
-        user.isAdmin = undefined
-        user.password = undefined
-        user.tokens = undefined
+        account.user.isAdmin = undefined
+        account.user.password = undefined
+        account.user.tokens = undefined
 
-        return res.send({ user: user, access_token: token })
+        return res.send({ user: account.user, account: account, access_token: token })
 
     } catch (e) {
         console.error("Error login user: ", e)

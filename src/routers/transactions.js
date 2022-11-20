@@ -4,21 +4,17 @@ const exportTransactionToCSV = require('../middleware/csvExporter')
 const transactionController = require('../controllers/transactions.controller')
 const router = new express.Router()
 
-router.post('/transactions/from/:user_account_id/to/:destinatary_account_id', authMW, transactionController.executeTransaction, exportTransactionToCSV)
+//Creates a new transaction
+router.post('/transactions', authMW, transactionController.executeTransaction, exportTransactionToCSV)
 
+//Cancel a pending transaction
 router.delete('/transactions/:transaction_id', authMW, transactionController.undoTransaction)
 
+//Get the transaction history for this user
 router.get('/transactions/historical', authMW, transactionController.userTransactionHistory)
 
-/**
- * TODO Bank admin should be able to see how much money bank has made from transactions 
- * through a separate route, but you can't store that information in an account. 
- * We would like you to use mongo's aggregation framework to calculate money made 
- * by the bank.
- */
-
-//  router.get('/admin/balance', authMW, isAdmin ,transactionController.transactionsBalanceForAdmin)
-router.get('/admin/balance', authMW ,transactionController.transactionsBalanceForAdmin)
+//Get the bank benefit as administrator user
+router.get('/admin/balance', authMW, isAdmin ,transactionController.transactionsBalanceForAdmin)
 
 
 module.exports = router

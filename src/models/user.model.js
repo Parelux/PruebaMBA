@@ -1,9 +1,10 @@
 const { mongoose, Schema } = require('mongoose')
 const jwt = require('jsonwebtoken')
-const bcrypt = require('bcryptjs');
 const Account = require('./account.model');
 const ShortUniqueId = require('short-unique-id');
 const generator = require('generate-password');
+const bcrypt = require('bcryptjs');
+
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -126,28 +127,6 @@ userSchema.statics.generateSecurePassword = async () => {
     });
 
     return securePassword
-}
-
-/**
- * Helper function to perform the login operation
- * @param {*} user_id 
- * @param {*} password 
- * @returns {user}
- */
-userSchema.statics.findByAccountID = async (account_id, password) => {
-    
-    const account = await Account.findOne({ accountId: account_id })
-    .populate('user')
-    if (!account) {
-        throw new Error('Unable to login, account not found.')
-    }
-
-    const isMatch = await bcrypt.compare(password, account.user.password)
-    if (!isMatch) {
-        throw new Error('Unable to login, Password incorrect.')
-    }
-
-    return account.user
 }
 
 const User = mongoose.model('User', userSchema);

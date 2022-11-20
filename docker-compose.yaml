@@ -49,7 +49,7 @@ services:
 
     ######Mongo express module###### 
     mongo-express-test:
-        container_name: mongo-express-test
+        container_name: mongo-express
         image: mongo-express
         restart: always
         depends_on:

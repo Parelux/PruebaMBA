@@ -1,12 +1,10 @@
-const { default: mongoose } = require('mongoose');
+const { default: mongoose, connect } = require('mongoose');
 const Connection = require('../models/connection.model')
 
 const requestConnection = async (req, res, next) => {
-    const userOneID = req.user._id;
-    const accountOneId = req.user.account.accountId;
-
-    // const accountOneId = req.body.accountOneId
-    const accountTwoId = req.body.accountId
+    const userOneID = req.user._id? req.user._id:undefined;
+    const accountOneId = req.user.account.accountId? req.user.account.accountId: undefined;
+    const accountTwoId = req.body.accountId? req.body.accountId: undefined;
 
     if (!accountOneId || !accountTwoId) {
         return res.status(400).send({ error: 'Error with data entry' })
@@ -14,6 +12,7 @@ const requestConnection = async (req, res, next) => {
 
     try {
 
+        //In case the other user has already sent an invitation to this one
         const connectionDuplicated = await Connection.findOne({
             $or: [
                 { accountOneId: accountOneId, accountTwoId: accountTwoId },
@@ -21,20 +20,32 @@ const requestConnection = async (req, res, next) => {
             ],
         })
 
-        if (connectionDuplicated && connectionDuplicated.accountTwoConfirm) {
-            return res.status(200).send({ info: "Accounts already linked" })
+        console.log("There was a connection created already: ", connectionDuplicated)
+
+        if(connectionDuplicated){
+            if (connectionDuplicated.accountTwoConfirm) {
+                return res.status(200).send({ info: "Accounts already linked" })
+            }
+    
+            if (connectionDuplicated.accountOneId === accountOneId) {
+                return res.status(200).send({ info: "The invitation is pending for the other user to accept it." })
+            }
+    
+            
+            //There was a pending invitation from the other user
+            if (!connectionDuplicated.accountTwoConfirm && connectionDuplicated.accountTwoId === accountOneId) {
+                connectionDuplicated.userTwoId = userOneID
+                connectionDuplicated.userTwoConfirm = true
+    
+                await connectionDuplicated.save()
+    
+                return res.status(201).send({
+                    info: 'There was a pending invitation from that account, it has been accepted!'
+                })
+            }
         }
 
-        if (connectionDuplicated && !connectionDuplicated.accountTwoConfirm) {
-            connectionDuplicated.userTwoId = userOneID
-            connectionDuplicated.userTwoConfirm = true
-
-            await connectionDuplicated.save()
-
-            return res.status(201).send({
-                info: 'There was a pending invitation from that account, it has been accepted!'
-            })
-        }
+        
 
         //If there are no pending invitations from that account, create a new one
         const connection = new Connection({
@@ -49,7 +60,7 @@ const requestConnection = async (req, res, next) => {
 
     } catch (e) {
         console.error("Error creating a new connection: ", e)
-        res.status(500).send({error: "Something wrong happened, contact an administrator"})
+        res.status(500).send({ error: "Something wrong happened, contact an administrator" })
     }
 }
 
@@ -70,6 +81,8 @@ const acceptConnection = async (req, res, next) => {
     const user = req.user
     const connection_id = req.params.connection_id
 
+    console.log(user, connection_id)
+
     if (!mongoose.Types.ObjectId.isValid(connection_id)) {
         return res.status(400).send({ error: 'Invalid connection_id' })
     }
@@ -77,20 +90,21 @@ const acceptConnection = async (req, res, next) => {
     try {
         const pendingConnection = await Connection.findOne({
             _id: connection_id,
-            userTwoId: user._id
+            accountTwoId: user.account.accountId
         })
+        
         if (!pendingConnection || pendingConnection.accountTwoConfirm) {
             return res.status(404).send({ error: 'No pending invitations were found' })
         }
 
         pendingConnection.userTwoId = req.user._id
         pendingConnection.accountTwoConfirm = true
-        
+
         await pendingConnection.save()
         return res.status(200).send({ info: 'Invitation accepted' })
     } catch (e) {
         console.error("Error accepting invitation: ", e)
-        return res.status(500).send({error: "Error accepting invitation, contact an administrator"})
+        return res.status(500).send({ error: "Error accepting invitation, contact an administrator" })
     }
 }
 
@@ -99,14 +113,19 @@ const getAllAvailableConnections = async (req, res, next) => {
 
     try {
         const availableConnections = await Connection.find({
-            $or: [
-                { accountOneId: user.account.accountId },
-                { accountTwoId: user.account.accountId }
-            ],
-            accountTwoConfirm: true
+
+            $and: [
+                {
+                    $or: [
+                        { accountOneId: user.account.accountId },
+                        { accountTwoId: user.account.accountId }
+                    ]
+                },
+                { accountTwoConfirm: true }
+            ]
         })
-        .populate('userOneId')
-        .populate('userTwoId')
+            .populate('userOneId')
+            .populate('userTwoId')
 
         //Show only the other user's information without sensitive data.
         availableConnections.map(connection => {
@@ -126,7 +145,7 @@ const getAllAvailableConnections = async (req, res, next) => {
             }
         });
 
-        res.status(200).send(availableConnections)
+        return res.status(200).send(availableConnections)
 
     } catch (e) {
         console.error("Error retrieving connections: ", e)
@@ -150,13 +169,13 @@ const removeConnectionOrInvitation = async (req, res, next) => {
         ]
     })
 
-    if(!connectionRemoved){
+    if (!connectionRemoved) {
         return res.status(404).send({
             info: 'The connection is already deleted'
         })
     }
 
-    return res.status(200).send({removed: connectionRemoved})
+    return res.status(200).send({ removed: connectionRemoved })
 }
 
 

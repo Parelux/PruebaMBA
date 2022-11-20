@@ -24,19 +24,17 @@ const transferServiceFunction = async () => {
 
         //Search for transactions from more than one minute and in pending status
         const pendingTransactions = await Transaction.find({
-
-            //TODO Check this work as expected
-            createdAt: { $gt: new Date(Date.now() - 1 * 60 * 1000) },
+            timeStamp: { $lte: new Date(Date.now() - 1 * 60 * 1000) },
             pending: true,
             cancelled: false,
             error: false
         })
 
-        //1-> Manage pending transactions
-        pendingTransactions.map(async (transaction) => {
+        //1-> Manage pending transactions sequentially
+        pendingTransactions.forEach(async (transaction) => {
             try {
                 //Validate target account
-                const targetAccount = await Account.find({
+                const targetAccount = await Account.findOne({
                     accountId: transaction.targetAccountId
                 })
                 if (!targetAccount) {
@@ -45,8 +43,10 @@ const transferServiceFunction = async () => {
                     await transaction.save()
                     throw new Error('Target account unreachable')
                 }
+                
 
                 //Transfer money from temporary account to target account
+                intermediateAccount = await intermediateAccount.getLatest()
                 if (intermediateAccount.balance < transaction.amount) {
                     throw new Error('Intermediate account with insufficient balance')
                 }
@@ -57,7 +57,7 @@ const transferServiceFunction = async () => {
                 transaction.pending = false;
                 await transaction.save()
 
-                console.info('Transaction ' + transaction._id.toString() + 'completed')
+                console.info('Transaction ' + transaction._id.toString() + ' has been completed!')
 
             } catch (e) {
                 console.error("Error executing the transaction "+transaction._id.toString()+" :", e)
@@ -74,10 +74,10 @@ const transferServiceFunction = async () => {
             error: false
         })
 
-        //2-> Manage cancelled transactions individually
+        //2-> Manage cancelled transactions in parallel
         cancelledTransactions.map(async (transaction) => {
             try {
-                const originAccount = await Account.find({
+                const originAccount = await Account.findOne({
                     accountId: transaction.originAccountId
                 })
 
@@ -97,9 +97,6 @@ const transferServiceFunction = async () => {
                 await transaction.save()
             }
         })
-
-        console.info("TRANSFER-SERVICE: All pending transactions were completed.")
-
     } catch (e) {
         console.error("Severe failure in Transfer service", e)
         console.error("Closing the application...Sorry!")
