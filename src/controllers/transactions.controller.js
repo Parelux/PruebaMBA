@@ -151,30 +151,23 @@ const userTransactionHistory = async (req, res, next) => {
     const user = req.user
     const accountId = user.account.accountId
 
-    //Get transactions completed succesfully to this user
-    const incomingTransactions = await Transaction.find({
-        targetAccountId: accountId,
-        cancelled: false,
+    //Get sent transactions
+    const sentTransactions = await Transaction.find({
+        originAccountId: accountId,
         pending: false
     })
 
     //Get transactions from this user
-    const outgoingTransactions = await Transaction.find({
+    const undoTransactions = await Transaction.find({
         originAccountId: accountId,
-    })
-
-    //Get transactions from this user
-    const cancellableTransactions = await Transaction.find({
-        originAccountId: accountId,
-        pending: true,
-        cancellable: false
+        cancelled: true
     })
 
 
 
     res.status(200).send({
-        incomingTransactions: incomingTransactions,
-        outgoingTransactions: outgoingTransactions
+        sentTransactions: sentTransactions,
+        undoTransactions: undoTransactions    
     })
 }
 

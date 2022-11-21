@@ -582,7 +582,7 @@
 							"variable": [
 								{
 									"key": "connection_id",
-									"value": "637a74a9395a113421bff8c9"
+									"value": "637ac53c93f527120b8b8970"
 								}
 							]
 						}
@@ -647,7 +647,7 @@
 							"variable": [
 								{
 									"key": "connection_id",
-									"value": "637a74a3395a113421bff8bb"
+									"value": "637ac53993f527120b8b8969"
 								}
 							]
 						}
@@ -977,6 +977,34 @@
 							"path": [
 								"admin",
 								"balance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User1 Transactions history",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user1token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/transactions/historical",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"transactions",
+								"historical"
 							]
 						}
 					},
