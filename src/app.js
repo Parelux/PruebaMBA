@@ -5,8 +5,6 @@ const { connectToDatabase } = require('./db/mongoose')
 const usersRouter = require('./routers/users')
 const transactionsRouter = require('./routers/transactions');
 const transferService = require('./services/transferService')
-var moment = require('moment');
-moment().format('mm/dd/yyyy, h:mm:ss a')
 
 const app = express()
 
