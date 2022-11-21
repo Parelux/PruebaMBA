@@ -5,6 +5,8 @@ const { connectToDatabase } = require('./db/mongoose')
 const usersRouter = require('./routers/users')
 const transactionsRouter = require('./routers/transactions');
 const transferService = require('./services/transferService')
+var moment = require('moment');
+moment().format('mm/dd/yyyy, h:mm:ss a')
 
 const app = express()
 
@@ -16,7 +18,7 @@ app.use(usersRouter)
 app.use(transactionsRouter)
 
 //Use historical folder to save transactions csv file
-app.use(express.static(path.join(__dirname, 'historical')));
+app.use(express.static(path.join(__dirname, './historical')));
 
 //Setup logs with morgan
 app.use(morgan('combined'))

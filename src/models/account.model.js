@@ -30,10 +30,10 @@ const accountSchema = new mongoose.Schema({
  * @param {*} password 
  * @returns {user}
  */
- accountSchema.statics.findByAccountIdAndPass = async (account_id, password) => {
-    
+accountSchema.statics.findByAccountIdAndPass = async (account_id, password) => {
+
     const account = await Account.findOne({ accountId: account_id })
-    .populate('user')
+        .populate('user')
 
     if (!account) {
         throw new Error('Unable to login, account not found.')
@@ -86,7 +86,7 @@ accountSchema.methods.transferMoneyToAccount = async function (amount) {
 }
 
 //Update the account with latest data
-accountSchema.methods.getLatest = function() {
+accountSchema.methods.getLatest = function () {
     return this.model('Account').findById(this.id);
 };
 

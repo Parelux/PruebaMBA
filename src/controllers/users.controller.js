@@ -8,7 +8,7 @@ const createUser = async (req, res) => {
     const user = new User(req.body)
     const balance = req.body.balance
 
-    if (!balance || balance <= 0) 
+    if (!balance || balance <= 0)
         return res.status(400).send({ error: 'Bad data entry, balance has to be positive or zero' })
 
     try {

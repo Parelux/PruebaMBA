@@ -6,10 +6,10 @@ const connectionsController = require('../controllers/connections.controller')
 const router = new express.Router()
 
 //Create a new user
-router.post('/users', usersController.createUser )
+router.post('/users', usersController.createUser)
 
 //Perform a login operation using user credentials
-router.post('/users/login', usersController.login )
+router.post('/users/login', usersController.login)
 
 //List all available connections
 router.get('/users/connections', authMW, connectionsController.getAllAvailableConnections)

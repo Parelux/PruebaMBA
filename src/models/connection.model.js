@@ -1,8 +1,8 @@
-const {mongoose, Schema} = require('mongoose');
+const { mongoose, Schema } = require('mongoose');
 
 const connectionnSchema = new mongoose.Schema({
     userOneId: {
-        type: Schema.Types.ObjectId, ref:'User'
+        type: Schema.Types.ObjectId, ref: 'User'
     },
     accountOneId: {
         type: String,
@@ -10,7 +10,7 @@ const connectionnSchema = new mongoose.Schema({
         trim: true
     },
     userTwoId: {
-        type: Schema.Types.ObjectId, ref:'User'
+        type: Schema.Types.ObjectId, ref: 'User'
     },
     accountTwoId: {
         type: String,

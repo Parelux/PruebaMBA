@@ -14,7 +14,7 @@ router.delete('/transactions/:transaction_id', authMW, transactionController.und
 router.get('/transactions/historical', authMW, transactionController.userTransactionHistory)
 
 //Get the bank benefit as administrator user
-router.get('/admin/balance', authMW, isAdmin ,transactionController.transactionsBalanceForAdmin)
+router.get('/admin/balance', authMW, isAdmin, transactionController.transactionsBalanceForAdmin)
 
 
 module.exports = router

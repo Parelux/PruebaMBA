@@ -20,20 +20,20 @@
   "jest": {
     "testEnvironment": "node"
   },
-  
   "homepage": "https://github.com/Parelux/PruebaNode#readme",
   "dependencies": {
+    "bcryptjs": "2.4.3",
+    "cron": "2.1.0",
+    "csv-writer": "1.6.0",
     "express": "4.18.2",
+    "generate-password": "1.7.0",
     "jsonwebtoken": "8.5.1",
+    "moment": "^2.29.4",
     "mongodb": "4.11.0",
     "mongoose": "6.7.2",
-    "short-unique-id": "4.4.4",
-    "validator": "^10.9.0",
-    "bcryptjs": "2.4.3",
-    "csv-writer": "1.6.0",
-    "generate-password": "1.7.0",
     "morgan": "1.10.0",
-    "cron": "2.1.0"
+    "short-unique-id": "4.4.4",
+    "validator": "^10.9.0"
   },
   "devDependencies": {
     "env-cmd": "10.1.0",

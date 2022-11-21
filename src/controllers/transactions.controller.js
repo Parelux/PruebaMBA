@@ -76,13 +76,11 @@ const executeTransaction = async (req, res, next) => {
             accountId: process.env.INTERMEDIATE_ACCOUNTID
         })
 
-        console.log("Intermediate account prepared: ", intermediateAccount)
-
         await userAccount.getAmountFromAccount(totalTransfer)
-        console.info(`*AMOUNT: ${totalTransfer} extracted from user account:*`, userAccount)
+        // console.info(`*AMOUNT: ${totalTransfer} extracted from user account:*`, userAccount)
 
         await intermediateAccount.transferMoneyToAccount(totalTransfer)
-        console.info(`*AMOUNT: ${totalTransfer} Transfered to intermediate account*`, intermediateAccount, totalTransfer)
+        // console.info(`*AMOUNT: ${totalTransfer} Transfered to intermediate account*`, intermediateAccount)
 
         res.status(200).send({
             transaction: transaction,
@@ -153,13 +151,26 @@ const userTransactionHistory = async (req, res, next) => {
     const user = req.user
     const accountId = user.account.accountId
 
+    //Get transactions completed succesfully to this user
     const incomingTransactions = await Transaction.find({
-        targetAccountId: accountId
+        targetAccountId: accountId,
+        cancelled: false,
+        pending: false
     })
 
+    //Get transactions from this user
     const outgoingTransactions = await Transaction.find({
-        originAccountId: accountId
+        originAccountId: accountId,
     })
+
+    //Get transactions from this user
+    const cancellableTransactions = await Transaction.find({
+        originAccountId: accountId,
+        pending: true,
+        cancellable: false
+    })
+
+
 
     res.status(200).send({
         incomingTransactions: incomingTransactions,
@@ -168,6 +179,13 @@ const userTransactionHistory = async (req, res, next) => {
 }
 
 const transactionsBalanceForAdmin = async (req, res, next) => {
+
+    const BANK_LT1000_TAXES = Number(process.env.BANK_LT1000_TAXES)
+    const BANK_GT1000_TAXES = Number(process.env.BANK_GT1000_TAXES)
+
+    if (!BANK_LT1000_TAXES || !BANK_GT1000_TAXES) {
+        return res.status(500).send({ error: "Taxes not defined" })
+    }
 
     try {
         //Calculate benefits from transations lesser than 1000
@@ -182,7 +200,7 @@ const transactionsBalanceForAdmin = async (req, res, next) => {
                         $sum: {
                             $multiply: [
                                 '$amount',
-                                process.env.BANK_LT1000_TAXES
+                                BANK_LT1000_TAXES
                             ]
                         }
                     }
@@ -204,7 +222,7 @@ const transactionsBalanceForAdmin = async (req, res, next) => {
                         $sum: {
                             $multiply: [
                                 '$amount',
-                                process.env.BANK_GT1000_TAXES
+                                BANK_GT1000_TAXES
                             ]
                         }
                     }
@@ -215,12 +233,13 @@ const transactionsBalanceForAdmin = async (req, res, next) => {
             .aggregate(pipelineGT1000, { allowDiskUse: true })
 
         //Format the exit
-        let benefitsFromTransLT1000 = resultLT1000[0].totalBenefit ? resultLT1000[0].totalBenefit : 0
-        let benefitsFromTransGT1000 = resultGT1000[0].totalBenefit ? resultGT1000[0].totalBenefit : 0
+        let benefitsFromTransLT1000 = resultLT1000[0]?.totalBenefit? resultLT1000[0].totalBenefit : 0
+        let benefitsFromTransGT1000 = resultGT1000[0]?.totalBenefit? resultGT1000[0].totalBenefit : 0
+
         return res.status(200).send({
-            transLessThan1000Benefit: benefitsFromTransLT1000,
-            transMoreThan1000Benefit: benefitsFromTransGT1000,
-            totalBenefits: benefitsFromTransLT1000 + benefitsFromTransGT1000
+            TransactionsLT1000_Benefit: benefitsFromTransLT1000,
+            TransactionsGT1000_Benefit: benefitsFromTransGT1000,
+            TotalBenefits: benefitsFromTransLT1000 + benefitsFromTransGT1000
         })
     } catch (e) {
         console.error("Error performing the querys", e)
@@ -232,7 +251,6 @@ const transactionsBalanceForAdmin = async (req, res, next) => {
 
 const transactionInTime = (transaction) => {
     const ONE_MINUTE = 60 * 1000;
-    // let timeStampNotInTime = transaction.timeStamp - ONE_MINUTE;
 
     if (transaction.timeStamp > (Date.now() - ONE_MINUTE)) {
         return true

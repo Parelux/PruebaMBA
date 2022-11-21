@@ -43,7 +43,7 @@ const transferServiceFunction = async () => {
                     await transaction.save()
                     throw new Error('Target account unreachable')
                 }
-                
+
 
                 //Transfer money from temporary account to target account
                 intermediateAccount = await intermediateAccount.getLatest()
@@ -60,10 +60,10 @@ const transferServiceFunction = async () => {
                 console.info('Transaction ' + transaction._id.toString() + ' has been completed!')
 
             } catch (e) {
-                console.error("Error executing the transaction "+transaction._id.toString()+" :", e)
+                console.error("Error executing the transaction " + transaction._id.toString() + " :", e)
                 transaction.error = true
                 transaction.errorDescription = 'Error executing'
-                await transaction.save() 
+                await transaction.save()
             }
         })
 
@@ -83,15 +83,15 @@ const transferServiceFunction = async () => {
 
                 await intermediateAccount.getAmountFromAccount(transaction.amount)
                 await originAccount.transferMoneyToAccount(transaction.amount)
-                
+
                 //Save the process
                 transaction.pending = false;
                 await transaction.save()
 
                 console.info('Transaction ' + transaction._id.toString() + 'cancelled.')
-                
+
             } catch (e) {
-                console.error("Error cancelling the transaction "+transaction._id.toString()+" :", e)
+                console.error("Error cancelling the transaction " + transaction._id.toString() + " :", e)
                 transaction.error = true
                 transaction.errorDescription = "Error cancelling"
                 await transaction.save()
@@ -104,6 +104,9 @@ const transferServiceFunction = async () => {
     }
 }
 
+/**
+ * Cron service to be executed with period defined in ENV
+ */
 const transferService = new CronJob(
     '*/' + process.env.TRANSFER_CHECK_INTERVAL_SECS + ' * * * * *',
     transferServiceFunction,
@@ -128,6 +131,7 @@ const startTransferService = async () => {
     )
     console.info("Account for temporary transactions present/created", intermediateAccount)
 
+    //Transfer Service Start
     transferService.start();
 }
 

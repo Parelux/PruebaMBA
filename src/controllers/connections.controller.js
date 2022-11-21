@@ -2,9 +2,9 @@ const { default: mongoose, connect } = require('mongoose');
 const Connection = require('../models/connection.model')
 
 const requestConnection = async (req, res, next) => {
-    const userOneID = req.user._id? req.user._id:undefined;
-    const accountOneId = req.user.account.accountId? req.user.account.accountId: undefined;
-    const accountTwoId = req.body.accountId? req.body.accountId: undefined;
+    const userOneID = req.user._id ? req.user._id : undefined;
+    const accountOneId = req.user.account.accountId ? req.user.account.accountId : undefined;
+    const accountTwoId = req.body.accountId ? req.body.accountId : undefined;
 
     if (!accountOneId || !accountTwoId) {
         return res.status(400).send({ error: 'Error with data entry' })
@@ -22,30 +22,30 @@ const requestConnection = async (req, res, next) => {
 
         console.log("There was a connection created already: ", connectionDuplicated)
 
-        if(connectionDuplicated){
+        if (connectionDuplicated) {
             if (connectionDuplicated.accountTwoConfirm) {
                 return res.status(200).send({ info: "Accounts already linked" })
             }
-    
+
             if (connectionDuplicated.accountOneId === accountOneId) {
                 return res.status(200).send({ info: "The invitation is pending for the other user to accept it." })
             }
-    
-            
+
+
             //There was a pending invitation from the other user
             if (!connectionDuplicated.accountTwoConfirm && connectionDuplicated.accountTwoId === accountOneId) {
                 connectionDuplicated.userTwoId = userOneID
-                connectionDuplicated.userTwoConfirm = true
-    
+                connectionDuplicated.accountTwoConfirm = true
+
                 await connectionDuplicated.save()
-    
+
                 return res.status(201).send({
                     info: 'There was a pending invitation from that account, it has been accepted!'
                 })
             }
         }
 
-        
+
 
         //If there are no pending invitations from that account, create a new one
         const connection = new Connection({
@@ -92,7 +92,7 @@ const acceptConnection = async (req, res, next) => {
             _id: connection_id,
             accountTwoId: user.account.accountId
         })
-        
+
         if (!pendingConnection || pendingConnection.accountTwoConfirm) {
             return res.status(404).send({ error: 'No pending invitations were found' })
         }

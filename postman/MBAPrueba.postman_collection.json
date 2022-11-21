@@ -1,0 +1,1051 @@
+{
+	"info": {
+		"_postman_id": "ce8060bf-1b1b-44cb-9897-4a05162f2438",
+		"name": "MBAPrueba",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "ENV_Prep",
+			"item": [
+				{
+					"name": "Create Admin User1 with 999999 balance",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var res = pm.response.json();",
+									"pm.collectionVariables.set(\"user1AccId\", res.user_account.accountId);",
+									"pm.collectionVariables.set(\"user1Passwd\", res.user.password);",
+									"pm.collectionVariables.set(\"user1token\", res.access_token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\":\"Thomas(aka Neo)\",\n    \"lastName\":\"Anderson\",\n    \"age\": 37,\n    \"balance\": 999999,\n    \"isAdmin\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{targetHost}}/users",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User2 with 400 balance",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var res = pm.response.json();",
+									"pm.collectionVariables.set(\"user2AccId\", res.user_account.accountId);",
+									"pm.collectionVariables.set(\"user2Passwd\", res.user.password);",
+									"pm.collectionVariables.set(\"user2token\", res.access_token);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\":\"Manolito\",\n    \"lastName\":\"Gafotas\",\n    \"age\": 14,\n    \"balance\": 400\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{targetHost}}/users",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User3 with 7777 balance",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var res = pm.response.json();",
+									"pm.collectionVariables.set(\"user3AccId\", res.user_account.accountId);",
+									"pm.collectionVariables.set(\"user3Passwd\", res.user.password);",
+									"pm.collectionVariables.set(\"user3token\", res.access_token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\":\"John\",\n    \"lastName\":\"Silver\",\n    \"age\": 34,\n    \"balance\": 7777\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{targetHost}}/users",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var res = pm.response.json();",
+									"pm.collectionVariables.set(\"user1token\", res.access_token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"accountId\":\"{{user1AccId}}\",\n    \"password\":\"{{user1Passwd}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{targetHost}}/users/login",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var res = pm.response.json();",
+									"pm.collectionVariables.set(\"user2token\", res.access_token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"accountId\":\"{{user2AccId}}\",\n    \"password\":\"{{user2Passwd}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{targetHost}}/users/login",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var res = pm.response.json();",
+									"pm.collectionVariables.set(\"user3token\", res.access_token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"accountId\":\"{{user3AccId}}\",\n    \"password\":\"{{user3Passwd}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{targetHost}}/users/login",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Invitations",
+			"item": [
+				{
+					"name": "User1 Invites User2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user1token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"accountId\":\"{{user2AccId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{targetHost}}/users/connections",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User2 invites User1 (Automatically Accepted)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user2token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"accountId\":\"{{user1AccId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{targetHost}}/users/connections",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User3 Invites User1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user3token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"accountId\":\"{{user1AccId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{targetHost}}/users/connections",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User2 Invites User3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user2token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"accountId\":\"{{user3AccId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{targetHost}}/users/connections",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User2 checks pending invites",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user2token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/users/connections/pending",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections",
+								"pending"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User2 Accepts the Invitation",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user2token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/users/connections/accept/:connection_id",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections",
+								"accept",
+								":connection_id"
+							],
+							"variable": [
+								{
+									"key": "connection_id",
+									"value": "63778b01b59cae81c25157ea"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User3 checks pending invites Copy",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user3token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/users/connections/pending",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections",
+								"pending"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User3 Accepts the Invitation",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user3token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/users/connections/accept/:connection_id",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections",
+								"accept",
+								":connection_id"
+							],
+							"variable": [
+								{
+									"key": "connection_id",
+									"value": "637a74a9395a113421bff8c9"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User1 checks pending invites",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user1token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/users/connections/pending",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections",
+								"pending"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User1 Accepts the Invitation",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user1token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/users/connections/accept/:connection_id",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections",
+								"accept",
+								":connection_id"
+							],
+							"variable": [
+								{
+									"key": "connection_id",
+									"value": "637a74a3395a113421bff8bb"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User1 available connections",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user1token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/users/connections",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User2 available connections",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user2token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/users/connections",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User3 available connections",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user3token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/users/connections",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User1 Remove invitation/Connection",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user1token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/users/connections/:connection_id",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections",
+								":connection_id"
+							],
+							"variable": [
+								{
+									"key": "connection_id",
+									"value": "637a74a3395a113421bff8bb"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User2 Remove invitation/Connection",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user2token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/users/connections/:connection_id",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections",
+								":connection_id"
+							],
+							"variable": [
+								{
+									"key": "connection_id",
+									"value": "637504feb4438d5e2e2521c1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User3 Remove Invitation/Connection",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user3token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/users/connections/:connection_id",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"users",
+								"connections",
+								":connection_id"
+							],
+							"variable": [
+								{
+									"key": "connection_id",
+									"value": "637504feb4438d5e2e2521c1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "User 1 Transfer X to User2",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user1token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"amountToTransfer\": 40,\n \"targetAccountId\": \"{{user2AccId}}\"  \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{targetHost}}/transactions",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"transactions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User1 Cancels the Transaction",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user1token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/transactions/:transaction_id",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"transactions",
+								":transaction_id"
+							],
+							"variable": [
+								{
+									"key": "transaction_id",
+									"value": "637a928ca684f2ef1f748e33"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User2 tries to send more money than he have",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user2token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"amountToTransfer\": 70000,\n \"targetAccountId\": \"{{user1AccId}}\"  \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{targetHost}}/transactions",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"transactions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin user checks bank benefit",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user1token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{targetHost}}/admin/balance",
+							"host": [
+								"{{targetHost}}"
+							],
+							"path": [
+								"admin",
+								"balance"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "targetHost",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "user1AccId",
+			"value": ""
+		},
+		{
+			"key": "user1Passwd",
+			"value": ""
+		},
+		{
+			"key": "user1token",
+			"value": ""
+		},
+		{
+			"key": "user2AccId",
+			"value": ""
+		},
+		{
+			"key": "user2Passwd",
+			"value": ""
+		},
+		{
+			"key": "user2token",
+			"value": ""
+		},
+		{
+			"key": "user3AccId",
+			"value": ""
+		},
+		{
+			"key": "user3Passwd",
+			"value": ""
+		},
+		{
+			"key": "user3token",
+			"value": ""
+		}
+	]
+}
